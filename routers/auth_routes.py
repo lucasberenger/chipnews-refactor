@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from core.database import get_db
 from typing import Annotated
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from schemas.token_dto import Token
-from schemas.user_dto import UserCreate, UserResponse
+from schemas.user_dto import UserCreate, UserResponse, LoginData
 from services.user_service import authenticate_user, get_user, create_user
 from utils.jwt import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES 
 from datetime import timedelta
@@ -21,8 +21,8 @@ async def register_user(user: UserCreate, db: Session = Depends(get_db)):
     return user
 
 @router.post('/login', response_model=Token)
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db))-> Token:
-    user = authenticate_user(db, form_data.username, form_data.password)
+async def login_for_access_token(user_data: LoginData, db: Session = Depends(get_db))-> Token | None:
+    user = authenticate_user(db, user_data.email, user_data.password)
 
     if not user:
         raise HTTPException(

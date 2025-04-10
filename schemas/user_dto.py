@@ -15,3 +15,7 @@ class UserCreate(BaseModel):
     phone: str
     address: str
     password: str
+
+class LoginData(BaseModel):
+    email: EmailStr
+    password: str
